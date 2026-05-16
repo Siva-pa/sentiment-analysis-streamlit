@@ -3,17 +3,7 @@ import pickle
 import re
 import string
 
-
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-import nltk
-# =========================
-# DOWNLOAD NLTK DATA
-# =========================
-
-nltk.download('stopwords')
-nltk.download('wordnet')
-nltk.download('omw-1.4')
+from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
 # =========================
 # LOAD MODEL & VECTORIZER
@@ -26,11 +16,10 @@ with open('vectorizer.pkl', 'rb') as file:
     vectorizer = pickle.load(file)
 
 # =========================
-# NLP TOOLS
+# STOPWORDS
 # =========================
 
-stop_words = set(stopwords.words('english'))
-lemmatizer = WordNetLemmatizer()
+stop_words = set(ENGLISH_STOP_WORDS)
 
 # =========================
 # TEXT CLEANING FUNCTION
@@ -38,23 +27,28 @@ lemmatizer = WordNetLemmatizer()
 
 def clean_text(text):
 
+    # Lowercase
     text = text.lower()
 
+    # Remove numbers
     text = re.sub(r'\d+', '', text)
 
+    # Remove punctuation
     text = text.translate(
         str.maketrans('', '', string.punctuation)
     )
 
+    # Remove special characters
     text = re.sub(r'[^a-zA-Z\s]', '', text)
 
+    # Remove extra spaces
     text = re.sub(r'\s+', ' ', text).strip()
 
+    # Remove stopwords
     words = text.split()
 
     words = [
-        lemmatizer.lemmatize(word)
-        for word in words
+        word for word in words
         if word not in stop_words
     ]
 
@@ -67,8 +61,7 @@ def clean_text(text):
 st.set_page_config(
     page_title='AI Sentiment Analyzer',
     page_icon='🧠',
-    layout='wide',
-    initial_sidebar_state='expanded'
+    layout='wide'
 )
 
 # =========================
@@ -139,11 +132,6 @@ st.markdown(
         font-weight: bold;
     }
 
-    div.stButton > button:hover {
-        background-color: #4338CA;
-        color: white;
-    }
-
     </style>
     """,
     unsafe_allow_html=True
@@ -195,10 +183,7 @@ st.markdown(
 
 left_col, right_col = st.columns([2, 1])
 
-# =========================
-# LEFT COLUMN
-# =========================
-
+# LEFT SIDE
 with left_col:
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
@@ -216,10 +201,7 @@ with left_col:
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-# =========================
-# RIGHT COLUMN
-# =========================
-
+# RIGHT SIDE
 with right_col:
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
@@ -230,7 +212,6 @@ with right_col:
     st.write("✔ Confidence Score")
     st.write("✔ Text Cleaning")
     st.write("✔ Stopword Removal")
-    st.write("✔ Lemmatization")
 
     st.markdown('---')
 
@@ -242,7 +223,7 @@ with right_col:
     st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================
-# PREDICTION SECTION
+# PREDICTION
 # =========================
 
 if predict_button:
@@ -269,37 +250,37 @@ if predict_button:
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # POSITIVE
+        # Positive
         if prediction == 1:
 
             confidence = probability[0][1] * 100
 
             st.markdown(
-                f"""
+                f'''
                 <div class="positive">
                     ✅ POSITIVE REVIEW
                     <br><br>
                     Confidence Score: {confidence:.2f}%
                 </div>
-                """,
+                ''',
                 unsafe_allow_html=True
             )
 
             st.balloons()
 
-        # NEGATIVE
+        # Negative
         else:
 
             confidence = probability[0][0] * 100
 
             st.markdown(
-                f"""
+                f'''
                 <div class="negative">
                     ❌ NEGATIVE REVIEW
                     <br><br>
                     Confidence Score: {confidence:.2f}%
                 </div>
-                """,
+                ''',
                 unsafe_allow_html=True
             )
 
@@ -313,7 +294,7 @@ st.markdown(
     """
     <center>
         <p style='color:gray;'>
-            Built with ❤️ using Streamlit, NLP, and Machine Learning
+            Built with ❤️ using Streamlit & Machine Learning
         </p>
     </center>
     """,
