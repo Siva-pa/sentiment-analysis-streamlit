@@ -2,6 +2,6 @@ streamlit
 pandas
 numpy
 scikit-learn
-nltk
+nltk == 3.9.1
 matplotlib
 seaborn
