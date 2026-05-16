@@ -3,8 +3,6 @@ import pickle
 import re
 import string
 
-from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
-
 # =========================
 # LOAD MODEL & VECTORIZER
 # =========================
@@ -19,7 +17,13 @@ with open('vectorizer.pkl', 'rb') as file:
 # STOPWORDS
 # =========================
 
-stop_words = set(ENGLISH_STOP_WORDS)
+# Getting stop words directly from your trained vectorizer is safer 
+# and prevents deprecation issues with sklearn's ENGLISH_STOP_WORDS.
+if hasattr(vectorizer, 'get_stop_words') and vectorizer.get_stop_words() is not None:
+    stop_words = set(vectorizer.get_stop_words())
+else:
+    # Fallback to an empty set if the vectorizer didn't use stop words
+    stop_words = set()
 
 # =========================
 # TEXT CLEANING FUNCTION
@@ -96,6 +100,7 @@ st.markdown(
         padding: 30px;
         border-radius: 20px;
         box-shadow: 0px 4px 20px rgba(0,0,0,0.4);
+        margin-bottom: 20px;
     }
 
     .positive {
@@ -185,7 +190,7 @@ left_col, right_col = st.columns([2, 1])
 
 # LEFT SIDE
 with left_col:
-
+    # Open the custom card container
     st.markdown('<div class="card">', unsafe_allow_html=True)
 
     review = st.text_area(
@@ -198,12 +203,12 @@ with left_col:
         "🚀 Predict Sentiment",
         use_container_width=True
     )
-
+    
+    # Securely close the card container layout
     st.markdown('</div>', unsafe_allow_html=True)
 
 # RIGHT SIDE
 with right_col:
-
     st.markdown('<div class="card">', unsafe_allow_html=True)
 
     st.subheader("✨ Features")
